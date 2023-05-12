@@ -122,14 +122,14 @@ class PoppyRobotController:
 
     def move_c(self, poppy, speed):
         # Move robot to C position
-        poppy.l_shoulder_x.goto_position(10, speed, wait=False)
+        poppy.l_shoulder_x.goto_position(0, speed, wait=False)
         poppy.l_shoulder_y.goto_position(0, speed, wait=False)
         poppy.l_arm_z.goto_position(90, speed, wait=False)
-        poppy.l_elbow_y.goto_position(-50, speed, wait=False)
-        poppy.r_shoulder_x.goto_position(-160, speed, wait=False)
+        poppy.l_elbow_y.goto_position(-80, speed, wait=False)
+        poppy.r_shoulder_x.goto_position(-170, speed, wait=False)
         poppy.r_shoulder_y.goto_position(0, speed, wait=False)
         poppy.r_arm_z.goto_position(-90, speed, wait=False)
-        poppy.r_elbow_y.goto_position(-70, speed, wait=False)
+        poppy.r_elbow_y.goto_position(-80, speed, wait=False)
         poppy.head_z.goto_position(0, speed, wait=False)
 
     def move_a(self, poppy, speed):
