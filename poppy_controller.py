@@ -11,10 +11,6 @@ class PoppyRobotController:
         self.is_running = False
         self.poppy = None
 
-        # # Create a label to display the robot status
-        # self.robot_status = tk.Label(self.window, text="Poppy Stopped", fg="red")
-        # self.robot_status.pack(side="top", padx=10, pady=10)
-
         # Create buttons to control the robot
         self.create_buttons()
         self.update_status_label()
