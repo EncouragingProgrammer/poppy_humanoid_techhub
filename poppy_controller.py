@@ -51,34 +51,26 @@ class PoppyRobotController:
     def wave_hand(self, poppy):
         # Code to make the robot wave its hand
         print("Waving hand...")
-        # TODO: write the code to move the robot forward
-        if poppy is not None:
-            # Move arm back to starting position
-            poppy.l_shoulder_x.goto_position(0, 1, wait=False)
-            poppy.l_shoulder_y.goto_position(0, 1, wait=False)
-            poppy.l_arm_z.goto_position(0, 1, wait=False)
-            poppy.l_elbow_y.goto_position(0, 1, wait=False)
+        # Move arm back to starting position
+        self.start_position(poppy)
 
-            # Raise arm to wave
-            poppy.l_shoulder_x.goto_position(75, 1, wait=False)
-            poppy.l_arm_z.goto_position(85, 1, wait=False)
+        # Raise arm to wave
+        poppy.l_shoulder_x.goto_position(75, 1, wait=False)
+        poppy.l_arm_z.goto_position(85, 1, wait=False)
 
-            # Wave hand
-            for i in range(2):
-                poppy.l_elbow_y.goto_position(-50, 1, wait=True)
-                poppy.l_elbow_y.goto_position(-110, 1, wait=True)
-                time.sleep(0.1)
-                poppy.head_z.goto_position(20, 1, wait=False)
-                poppy.l_elbow_y.goto_position(-55, 1, wait=True)
-                poppy.l_elbow_y.goto_position(-105, 1, wait=True)
-                time.sleep(0.1)
-                poppy.head_z.goto_position(0, 1, wait=False)
+        # Wave hand
+        for i in range(2):
+            poppy.l_elbow_y.goto_position(-50, 1, wait=True)
+            poppy.l_elbow_y.goto_position(-110, 1, wait=True)
+            time.sleep(0.1)
+            poppy.head_z.goto_position(20, 1, wait=False)
+            poppy.l_elbow_y.goto_position(-55, 1, wait=True)
+            poppy.l_elbow_y.goto_position(-105, 1, wait=True)
+            time.sleep(0.1)
+            poppy.head_z.goto_position(0, 1, wait=False)
 
-            # Move arm back to starting position
-            poppy.l_shoulder_x.goto_position(0, 1, wait=False)
-            poppy.l_shoulder_y.goto_position(0, 1, wait=False)
-            poppy.l_arm_z.goto_position(0, 1, wait=False)
-            poppy.l_elbow_y.goto_position(0, 1, wait=False)
+        # Move arm back to starting position
+        self.start_position(poppy)
 
     def dance_ymca(self, poppy):
         print("Dancing YMCA!")
@@ -95,7 +87,7 @@ class PoppyRobotController:
         print("Finished dancing YMCA!")
         time.sleep(2)
         self.start_position(poppy)
-        
+
     def move_y(self, poppy, speed):
         # Move robot to Y position
         poppy.l_shoulder_x.goto_position(140, speed, wait=False)
