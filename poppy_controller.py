@@ -93,7 +93,9 @@ class PoppyRobotController:
         self.move_a(poppy, 1)
         time.sleep(0.5)
         print("Finished dancing YMCA!")
-
+        time.sleep(2)
+        self.start_position(poppy)
+        
     def move_y(self, poppy, speed):
         # Move robot to Y position
         poppy.l_shoulder_x.goto_position(140, speed, wait=False)
