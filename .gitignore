@@ -1,0 +1,13 @@
+# Ignore virtual environment folder
+venv/
+.env/
+.venv/
+
+# Other typical Python ignores
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore IDE files (if applicable)
+.vscode/
+.idea/

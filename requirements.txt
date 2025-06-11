@@ -1,2 +1,4 @@
 pypot
 poppy-humanoid
+poppy-torso
+pandas
