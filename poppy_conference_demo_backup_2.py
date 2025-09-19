@@ -1,6 +1,8 @@
 import tkinter as tk
 import time as t
 import poppy_motors as pm
+import threading
+
 
 
 # tkinter GUI
@@ -9,6 +11,10 @@ def create_gui():
     root.title("Poppy Motor Control")
     # Set a fixed window size (e.g., 300x400 pixels)
     root.geometry("600x800")  # Width x Height
+
+    def threaded_command(command):
+        threading.Thread(target=command).start()
+
 
     # Dictionary to hold current position and goal entry variables for each motor
     entry_vars = {}
@@ -27,21 +33,30 @@ def create_gui():
     start_button = tk.Button(root, text="Start Position", command=pm.start_position)
     start_button.pack(pady=10)
 
-    # Wave Button
-    wave_button = tk.Button(root, text="Wave Poppy", command=pm.wave_poppy)
+    # Wave Button  (with threading)
+    wave_button = tk.Button(root, text="Wave Poppy", command=lambda: threaded_command(pm.wave_poppy))
     wave_button.pack(pady=10)
 
-    # Wave Button
-    wave_button = tk.Button(root, text="Wave repeated", command=pm.wave_more_poppy)
+    # Wave Button  (with threading)
+    wave_button = tk.Button(root, text="Wave repeated", command=lambda: threaded_command(pm.wave_more_poppy))
     wave_button.pack(pady=10)
 
-    # Wave Button
-    wave_button = tk.Button(root, text="YMCA", command=pm.ymca)
+    # Wave Button  (with threading)
+    wave_button = tk.Button(root, text="YMCA", command=lambda: threaded_command(pm.ymca))
     wave_button.pack(pady=10)
 
-    # Macarena Button
-    macarena_button = tk.Button(root, text="Macarena", command=pm.macarena)
+    # Macarena Button  (with threading)
+    macarena_button = tk.Button(root, text="Macarena", command=lambda: threaded_command(pm.macarena))
     macarena_button.pack(pady=10)
+
+    # Macarena Button x5 (with threading)
+    macarena_button = tk.Button(root, text="Macarena x5", command=lambda: threaded_command(pm.macarena_5))
+    macarena_button.pack(pady=10)
+
+    # STOP Button
+    stop_button = tk.Button(root, text="STOP", bg="red", fg="white",  font=("Arial", 14, "bold"),
+                        command=pm.stop_motion)
+    stop_button.pack(pady=10)
 
     # Relax Motors Button
     relax_arms_button = tk.Button(root, text="Relax Arms Only", command=pm.relax_arms)
