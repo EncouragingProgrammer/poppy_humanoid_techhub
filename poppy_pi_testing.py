@@ -29,7 +29,7 @@ def create_motor_test_gui():
     headers = ["Motor", "Current", "Set Position", "Set", "Hold", "Release"]
     for col, text in enumerate(headers):
         tk.Label(scroll_frame, text=text, font=("Arial", 10, "bold")).grid(row=0, column=col, padx=3, pady=3)
-
+    
     # Update positions live
     def update_positions():
         try:
@@ -74,6 +74,13 @@ def create_motor_test_gui():
 
         # Store for updates
         entry_vars[motor_name] = {"current": current_label, "desired": desired_var}
+
+    # When the window closes, release motor connection
+    def on_close():
+        pm.close_connection()
+        root.destroy()
+
+    root.protocol("WM_DELETE_WINDOW", on_close)
 
     # Kick off updates
     update_positions()

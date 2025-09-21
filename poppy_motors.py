@@ -58,102 +58,104 @@ def reset_stop_flag():
     stop_flag = False
 
 # -------------------------------
+# CONNECTION
+# -------------------------------
+
+dxl_io = None  # global handle
+
+def open_connection():
+    global dxl_io
+    if dxl_io is None:
+        dxl_io = pypot.dynamixel.DxlIO(PORT, BAUDRATE)
+        print("DxlIO connection opened.")
+
+def close_connection():
+    global dxl_io
+    if dxl_io is not None:
+        dxl_io.close()
+        dxl_io = None
+        print("DxlIO connection closed.")
+
+# -------------------------------
 # MOTOR HELPERS
 # -------------------------------
+def move_motor_instant(motor_id, goal_position):
+    open_connection()
+    if dxl_io.ping(motor_id):
+        dxl_io.set_goal_position({motor_id: float(goal_position)})
+        print(f"Motor {motor_id} moved to {goal_position}.")
+    else:
+        print(f"Motor {motor_id} is not reachable.")
+
 def move_motors_timed(target_positions, duration):
     """Moves motors smoothly to target positions over 'duration' seconds."""
-    dxl_io = pypot.dynamixel.DxlIO(PORT, BAUDRATE)
-    try:
-        reachable = [m for m in target_positions if dxl_io.ping(m)]
-        if not reachable:
-            print("No motors reachable.")
-            return
+    open_connection()
+    reachable = [m for m in target_positions if dxl_io.ping(m)]
+    if not reachable:
+        print("No motors reachable.")
+        return
 
-        current_positions = dxl_io.get_present_position(reachable)
-        steps = 50
-        step_time = duration / steps
+    current_positions = dxl_io.get_present_position(reachable)
+    steps = 50
+    step_time = duration / steps
 
-        for step in range(steps):
-            if stop_flag:
-                print("Movement stopped early.")
-                break
+    for step in range(steps):
+        if stop_flag:
+            print("Movement stopped early.")
+            break
 
-            new_positions = {}
-            for i, motor_id in enumerate(reachable):
-                current = current_positions[i]
-                goal = target_positions[motor_id]
-                diff = goal - current
+        new_positions = {}
+        for i, motor_id in enumerate(reachable):
+            current = current_positions[i]
+            goal = target_positions[motor_id]
+            diff = goal - current
 
-                # Normalize diff into -180..180
-                if diff > 180:
-                    diff -= 360
-                elif diff < -180:
-                    diff += 360
+            # Normalize diff into -180..180
+            if diff > 180:
+                diff -= 360
+            elif diff < -180:
+                diff += 360
 
-                new_positions[motor_id] = current + diff * (step + 1) / steps
+            new_positions[motor_id] = current + diff * (step + 1) / steps
 
-            dxl_io.set_goal_position(new_positions)
-            t.sleep(step_time)
+        dxl_io.set_goal_position(new_positions)
+        t.sleep(step_time)
 
-        print("Movement finished.")
-    finally:
-        dxl_io.close()
+    print("Movement finished.")
+
 
 def get_all_motor_positions():
-    motor_ids = list(motor_names.keys())
-    dxl_io = pypot.dynamixel.DxlIO(PORT, BAUDRATE)
-    
-    try:
-        positions = {}
-        if all(dxl_io.ping(motor_id) for motor_id in motor_ids):
-            all_positions = dxl_io.get_present_position(motor_ids)
-            for motor_id, position in zip(motor_ids, all_positions):
-                motor_name = motor_names.get(motor_id, 'Unknown Motor')
-                positions[motor_name] = position
-            
-            # Custom formatting without quotes around keys
-            formatted_positions = '{\n' + ',\n'.join(f'  {key}: {value}' for key, value in positions.items()) + '\n}'
-            # print(formatted_positions)
-            
-            return positions
-        else:
-            print("Some motors are not reachable.")
-            return positions
-    finally:
-        dxl_io.close()
+    open_connection()
+    positions = {}
+    reachable = [m for m in motor_names.keys() if dxl_io.ping(m)]
+    if reachable:
+        all_positions = dxl_io.get_present_position(reachable)
+        for motor_id, position in zip(reachable, all_positions):
+            motor_name = motor_names.get(motor_id, f"Motor{motor_id}")
+            positions[motor_name] = position
+    else:
+        print("No motors reachable.")
+    return positions
+
 
 def get_motor_position(motor_id):
-    dxl_io = pypot.dynamixel.DxlIO(PORT, BAUDRATE)
-    
-    try:
-        # Check if the motor is reachable
-        if dxl_io.ping(motor_id):
-            # Get the current position of the specified motor
-            position = dxl_io.get_present_position([motor_id])[0]  # get_present_position returns a list
-            motor_name = motor_names.get(motor_id, 'Unknown Motor')
-            
-            # Print the motor name and position
-            print(f"{motor_name} (ID: {motor_id}) is at position {position}.")
-            
-            return position
-        else:
-            print(f"Motor {motor_id} is not reachable.")
-            return None
-    finally:
-        dxl_io.close()
+    open_connection()
+    if dxl_io.ping(motor_id):
+        position = dxl_io.get_present_position([motor_id])[0]
+        motor_name = motor_names.get(motor_id, f"Motor{motor_id}")
+        print(f"{motor_name} (ID: {motor_id}) is at {position:.2f}")
+        return position
+    else:
+        print(f"Motor {motor_id} is not reachable.")
+        return None
+
 
 def relax_motors(motor_ids):
-    # Initialize the DxlIO object
-    dxl_io = pypot.dynamixel.DxlIO(PORT, BAUDRATE)
-    
-    try:
-        # Disable torque for each motor
-        for motor_id in motor_ids:
-            dxl_io._set_torque_enable({motor_id: 0})
-            print(f"Torque of motor {motor_id} disabled.")
-    finally:
-        # Close the DxlIO object to free the port
-        dxl_io.close()
+    open_connection()
+    for motor_id in motor_ids:
+        dxl_io._set_torque_enable({motor_id: 0})
+        print(f"Torque of motor {motor_id} disabled.")
+
 
 def relax_all_motors():
     relax_motors(motor_names.keys())
