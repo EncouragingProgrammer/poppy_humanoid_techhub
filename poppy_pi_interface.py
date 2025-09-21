@@ -16,18 +16,21 @@ def create_touch_gui():
         )
         btn.grid(row=row, column=col, padx=5, pady=5, sticky="nsew")
 
-    # Arrange in 2x2 grid + STOP spanning bottom row
+    # Arrange in 3x2 grid + STOP spanning bottom row
     big_button("Wave 👋", pm.wave_poppy, "#90ee90", row=0, col=0)
-    big_button("Drive 🚗", pm.drive_pose, "#add8e6", row=0, col=1)
+    big_button("Cruise 😎", pm.cruise, "#d3d3d3", row=0, col=1)
     big_button("Hands Up 🙌", pm.hands_up, "#ffd580", row=1, col=0)
-    big_button("Rest 😴", pm.rest_pose, "#d3d3d3", row=1, col=1)
+    big_button("Drive 🚗", pm.drive, "#add8e6", row=1, col=1)
+    big_button("Random 🎲", pm.random_mode, "#dda0dd", row=2, col=0)
+    big_button("Relax Arms", pm.relax_arms, "#ffcccb", row=2, col=1)
 
     stop_btn = tk.Button(
         root, text="STOP", command=pm.stop_motion,
         bg="red", fg="white", font=("Arial", 20, "bold"),
         width=25, height=2
     )
-    stop_btn.grid(row=2, column=0, columnspan=2, padx=5, pady=10, sticky="nsew")
+    stop_btn.grid(row=3, column=0, columnspan=2, padx=5, pady=10, sticky="nsew")
+
 
     # Make grid resize nicely
     root.grid_rowconfigure([0, 1, 2], weight=1)

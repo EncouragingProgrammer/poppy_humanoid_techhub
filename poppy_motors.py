@@ -1,7 +1,10 @@
 # poppy_motors.py
-import pypot.dynamixel
-import time as t
 import platform
+import pypot.dynamixel
+import random
+import threading
+import time as t
+
 
 # -------------------------------
 # CONFIG
@@ -161,35 +164,85 @@ def relax_all_motors():
     relax_motors(motor_names.keys())
 
 def relax_arms():
-    motor_names = {
-        51: 'R_SHOULDER_Y',
-        52: 'R_SHOULDER_X',
-        53: 'R_ARM_Z',
-        54: 'R_ELBOW_Y',
-        41: 'L_SHOULDER_Y',
-        42: 'L_SHOULDER_X',
-        43: 'L_ARM_Z',
-        44: 'L_ELBOW_Y',
-    }
-    relax_motors(motor_names.keys())
+    """Disable torque on arm motors only."""
+    open_connection()
+    arm_ids = [51, 52, 53, 54, 41, 42, 43, 44]  # right + left arm
+    for m in arm_ids:
+        dxl_io._set_torque_enable({m: 0})
+        print(f"Arm motor {m} relaxed.")
 
 # -------------------------------
 # ANIMATIONS / POSES
 # -------------------------------
 def wave_poppy(duration=2):
-    """Wave animation (placeholder)."""
+    """Simple wave animation (left arm waves while right arm stays in drive)."""
     reset_stop_flag()
-    print("Wave Poppy (TODO: fill motor positions)")
+    print("Wave Poppy")
 
-    # Example structure
+    # Position 1 – left arm up, elbow bent
     step1 = {
-        # TODO: add motor positions for wave start
-        # 51: 120.0,
-        # 41: -40.0,
-    }
-    move_motors_timed(step1, duration)
+        # Left arm
+        41: -136,   # L_SHOULDER_Y
+        42: -16,    # L_SHOULDER_X
+        43: 80,     # L_ARM_Z
+        44: -117,   # L_ELBOW_Y
 
-def drive_pose(duration=2):
+        # Right arm (drive pose)
+        51: 167,
+        52: -112,
+        53: -28,
+        54: 168,
+
+        # Torso
+        33: -4.26,   # ABS_Z
+        34: -10.75,  # BUST_Y
+        35: 0.92,    # BUST_X
+
+        # Head
+        36: -48,     # HEAD_Z slight turn
+        37: -0.44,   # HEAD_Y
+    }
+
+    # Position 2 – shift left arm for wave motion
+    step2 = {
+        # Left arm
+        41: -118,   # L_SHOULDER_Y
+        42: -12,    # L_SHOULDER_X
+        43: 78,     # L_ARM_Z
+        44: -160,   # L_ELBOW_Y
+
+        # Right arm (drive pose)
+        51: 167,
+        52: -112,
+        53: -28,
+        54: 168,
+
+        # Torso
+        33: -4.26,
+        34: -10.75,
+        35: 0.92,
+
+        # Head
+        36: -48,   # same head turn
+        37: -0.44,
+    }
+
+    # Sequence: step1 → step2 → step1 → step2 → back to drive
+    move_motors_timed(step1, duration)
+    if stop_flag: return
+    move_motors_timed(step2, duration)
+    if stop_flag: return
+    move_motors_timed(step1, duration)
+    if stop_flag: return
+    move_motors_timed(step2, duration)
+    if stop_flag: return
+    t.sleep(0.5)
+
+    # Back to drive
+    drive(duration)
+
+
+def cruise(duration=2):
     """Hands on wheel pose."""
     reset_stop_flag()
     print("Drive pose")
@@ -219,22 +272,79 @@ def drive_pose(duration=2):
 
 
 def hands_up(duration=2):
-    """Arms up 'weeee' pose (placeholder)."""
+    """Arms up 'weeee' pose."""
     reset_stop_flag()
-    print("Hands up pose (TODO: fill motor positions)")
+    print("Hands up pose")
 
     target_positions = {
-        # TODO: add motor positions for hands up
+        # Right arm
+        51: -80,    # R_SHOULDER_Y
+        52: -84,    # R_SHOULDER_X
+        53: -87,    # R_ARM_Z
+        54: 148,    # R_ELBOW_Y
+
+        # Left arm
+        41: -111,   # L_SHOULDER_Y
+        42: 15,     # L_SHOULDER_X
+        43: 60,     # L_ARM_Z
+        44: -118,   # L_ELBOW_Y
+
+        # Torso & head
+        33: -4.26,  # ABS_Z
+        34: -10.75, # BUST_Y
+        35: 0.92,   # BUST_X
+        36: -77.57, # HEAD_Z
+        37: -0.44,  # HEAD_Y
     }
+
     move_motors_timed(target_positions, duration)
 
-def rest_pose(duration=2):
-    """Neutral/rest pose (placeholder)."""
+
+def drive(duration=2):
+    """Neutral driving/cruise pose."""
     reset_stop_flag()
-    print("Rest pose (TODO: fill motor positions)")
+    print("Drive pose")
 
     target_positions = {
-        # TODO: add motor positions for relaxed state
+        # Right arm
+        51: 167,     # R_SHOULDER_Y
+        52: -112,    # R_SHOULDER_X
+        53: -28,     # R_ARM_Z
+        54: 168,     # R_ELBOW_Y
+
+        # Left arm
+        41: -18.5,   # L_SHOULDER_Y
+        42: 36,      # L_SHOULDER_X
+        43: 33,      # L_ARM_Z
+        44: -118.5,  # L_ELBOW_Y
+
+        # Torso & head
+        33: -4.26,   # ABS_Z
+        34: -10.75,  # BUST_Y
+        35: 0.92,    # BUST_X
+        36: -77.57,  # HEAD_Z
+        37: -0.44,   # HEAD_Y
     }
+
     move_motors_timed(target_positions, duration)
-    relax_arms()
+
+
+def random_mode(interval=30):
+    """Cycle through animations randomly every `interval` seconds."""
+    reset_stop_flag()
+    print("Random mode started")
+
+    animations = [wave_poppy, cruise, hands_up, drive]
+
+    def loop():
+        while not stop_flag:
+            anim = random.choice(animations)
+            print(f"Random: running {anim.__name__}")
+            anim(duration=2)
+            for _ in range(interval):
+                if stop_flag:
+                    print("Random mode stopped")
+                    return
+                t.sleep(1)
+
+    threading.Thread(target=loop, daemon=True).start()
