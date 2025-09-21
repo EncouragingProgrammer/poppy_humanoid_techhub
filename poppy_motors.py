@@ -99,6 +99,49 @@ def move_motors_timed(target_positions, duration):
     finally:
         dxl_io.close()
 
+def get_all_motor_positions():
+    motor_ids = list(motor_names.keys())
+    dxl_io = pypot.dynamixel.DxlIO(PORT, BAUDRATE)
+    
+    try:
+        positions = {}
+        if all(dxl_io.ping(motor_id) for motor_id in motor_ids):
+            all_positions = dxl_io.get_present_position(motor_ids)
+            for motor_id, position in zip(motor_ids, all_positions):
+                motor_name = motor_names.get(motor_id, 'Unknown Motor')
+                positions[motor_name] = position
+            
+            # Custom formatting without quotes around keys
+            formatted_positions = '{\n' + ',\n'.join(f'  {key}: {value}' for key, value in positions.items()) + '\n}'
+            # print(formatted_positions)
+            
+            return positions
+        else:
+            print("Some motors are not reachable.")
+            return positions
+    finally:
+        dxl_io.close()
+
+def get_motor_position(motor_id):
+    dxl_io = pypot.dynamixel.DxlIO(PORT, BAUDRATE)
+    
+    try:
+        # Check if the motor is reachable
+        if dxl_io.ping(motor_id):
+            # Get the current position of the specified motor
+            position = dxl_io.get_present_position([motor_id])[0]  # get_present_position returns a list
+            motor_name = motor_names.get(motor_id, 'Unknown Motor')
+            
+            # Print the motor name and position
+            print(f"{motor_name} (ID: {motor_id}) is at position {position}.")
+            
+            return position
+        else:
+            print(f"Motor {motor_id} is not reachable.")
+            return None
+    finally:
+        dxl_io.close()
+
 def relax_motors(motor_ids):
     # Initialize the DxlIO object
     dxl_io = pypot.dynamixel.DxlIO(PORT, BAUDRATE)
