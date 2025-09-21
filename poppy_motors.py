@@ -83,15 +83,34 @@ def move_motors_timed(target_positions, duration):
     finally:
         dxl_io.close()
 
-def relax_all_motors():
-    """Disable torque on all motors."""
+def relax_motors(motor_ids):
+    # Initialize the DxlIO object
     dxl_io = pypot.dynamixel.DxlIO(PORT, BAUDRATE)
+    
     try:
-        for m in motor_names.keys():
-            dxl_io._set_torque_enable({m: 0})
-        print("All motors relaxed.")
+        # Disable torque for each motor
+        for motor_id in motor_ids:
+            dxl_io._set_torque_enable({motor_id: 0})
+            print(f"Torque of motor {motor_id} disabled.")
     finally:
+        # Close the DxlIO object to free the port
         dxl_io.close()
+
+def relax_all_motors():
+    relax_motors(motor_names.keys())
+
+def relax_arms():
+    motor_names = {
+        51: 'R_SHOULDER_Y',
+        52: 'R_SHOULDER_X',
+        53: 'R_ARM_Z',
+        54: 'R_ELBOW_Y',
+        41: 'L_SHOULDER_Y',
+        42: 'L_SHOULDER_X',
+        43: 'L_ARM_Z',
+        44: 'L_ELBOW_Y',
+    }
+    relax_motors(motor_names.keys())
 
 # -------------------------------
 # ANIMATIONS / POSES
@@ -110,14 +129,26 @@ def wave_poppy(duration=2):
     move_motors_timed(step1, duration)
 
 def drive_pose(duration=2):
-    """Hands on wheel pose (placeholder)."""
+    """Hands on wheel pose."""
     reset_stop_flag()
-    print("Drive pose (TODO: fill motor positions)")
+    print("Drive pose")
 
     target_positions = {
-        # TODO: add motor positions for hands on wheel
+        # Right arm
+        51: -175,   # R_SHOULDER_Y
+        52: -122,   # R_SHOULDER_X
+        53: -82,    # R_ARM_Z
+        54: 150,    # R_ELBOW_Y
+
+        # Left arm
+        41: -9,     # L_SHOULDER_Y
+        42: -40,    # L_SHOULDER_X
+        43: 59,     # L_ARM_Z
+        44: 170,    # L_ELBOW_Y
     }
+
     move_motors_timed(target_positions, duration)
+
 
 def hands_up(duration=2):
     """Arms up 'weeee' pose (placeholder)."""
@@ -138,4 +169,4 @@ def rest_pose(duration=2):
         # TODO: add motor positions for relaxed state
     }
     move_motors_timed(target_positions, duration)
-    relax_all_motors()
+    relax_arms()
