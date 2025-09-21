@@ -1,12 +1,28 @@
 # poppy_motors.py
 import pypot.dynamixel
 import time as t
+import platform
 
 # -------------------------------
 # CONFIG
 # -------------------------------
 # Update this if your USB adapter shows up as ttyUSB1 instead
-PORT = '/dev/ttyUSB0'
+
+# Detect OS and set correct port
+if platform.system() == "Windows":
+    # Update this to match the COM port of your USB2Dynamixel adapter
+    PORT = "COM8"
+    print("Running on Windows")
+elif platform.system() == "Linux":
+    # On Raspberry Pi / Ubuntu it usually shows up as /dev/ttyUSB0
+    PORT = "/dev/ttyUSB0"
+    print("Running on Linux")
+else:
+    print("Unsupported OS. Please set the PORT variable manually.")
+    # Get user input for PORT
+    PORT = input("Enter the port for your USB2Dynamixel adapter (e.g. /dev/ttyUSB0 or COM3): ")
+    print(f"Using port: {PORT}")
+
 BAUDRATE = 1000000
 
 # Motor ID to name mapping (adjust if yours differ)
@@ -145,6 +161,13 @@ def drive_pose(duration=2):
         42: -40,    # L_SHOULDER_X
         43: 59,     # L_ARM_Z
         44: 170,    # L_ELBOW_Y
+
+        # Torso & head
+        33: -4.26,  # ABS_Z
+        34: -10.75, # BUST_Y
+        35: 0.92,   # BUST_X
+        36: -77.57, # HEAD_Z
+        37: -0.44,  # HEAD_Y
     }
 
     move_motors_timed(target_positions, duration)
