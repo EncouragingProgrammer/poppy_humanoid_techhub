@@ -212,10 +212,10 @@ def wave_poppy(duration=2):
         44: -160,   # L_ELBOW_Y
 
         # Right arm (drive pose)
-        51: 167,
+        51: -170,
         52: -112,
-        53: -28,
-        54: 168,
+        53: -65,
+        54: 135,
 
         # Torso
         33: -4.26,
