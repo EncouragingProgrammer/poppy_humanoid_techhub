@@ -329,7 +329,7 @@ def drive(duration=2):
     move_motors_timed(target_positions, duration)
 
 
-def random_mode(interval=30):
+def random_mode(interval=20):
     """Cycle through animations randomly every `interval` seconds."""
     reset_stop_flag()
     print("Random mode started")
