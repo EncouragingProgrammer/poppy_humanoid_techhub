@@ -188,10 +188,10 @@ def wave_poppy(duration=2):
         44: -117,   # L_ELBOW_Y
 
         # Right arm (drive pose)
-        51: 167,
+        51: -170,
         52: -112,
-        53: -28,
-        54: 168,
+        53: -65,
+        54: 135,
 
         # Torso
         33: -4.26,   # ABS_Z
@@ -249,7 +249,7 @@ def cruise(duration=2):
 
     target_positions = {
         # Right arm
-        51: -175,   # R_SHOULDER_Y
+        51: -170,   # R_SHOULDER_Y
         52: -122,   # R_SHOULDER_X
         53: -82,    # R_ARM_Z
         54: 150,    # R_ELBOW_Y
@@ -307,16 +307,16 @@ def drive(duration=2):
 
     target_positions = {
         # Right arm
-        51: 167,     # R_SHOULDER_Y
-        52: -112,    # R_SHOULDER_X
-        53: -28,     # R_ARM_Z
-        54: 168,     # R_ELBOW_Y
+        51: -170,     # R_SHOULDER_Y
+        52: -115,    # R_SHOULDER_X
+        53: -65,     # R_ARM_Z
+        54: 135,     # R_ELBOW_Y
 
         # Left arm
-        41: -18.5,   # L_SHOULDER_Y
+        41: -30,   # L_SHOULDER_Y
         42: 36,      # L_SHOULDER_X
-        43: 33,      # L_ARM_Z
-        44: -118.5,  # L_ELBOW_Y
+        43: 71,      # L_ARM_Z
+        44: -106,  # L_ELBOW_Y
 
         # Torso & head
         33: -4.26,   # ABS_Z
