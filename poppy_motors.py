@@ -4,29 +4,41 @@ import pypot.dynamixel
 import random
 import threading
 import time as t
+import serial.tools.list_ports
 
-
+# Detect OS and set correct port
 # -------------------------------
 # CONFIG
 # -------------------------------
-# Update this if your USB adapter shows up as ttyUSB1 instead
 
-# Detect OS and set correct port
+PORT = None
+BAUDRATE = 1000000  # 1Mbaud for USB2Dynamixel
+
 if platform.system() == "Windows":
-    # Update this to match the COM port of your USB2Dynamixel adapter
-    PORT = "COM8"
-    print("Running on Windows")
+    try:
+        test = serial.Serial("COM8", BAUDRATE, timeout=1)
+        test.close()
+        PORT = "COM8"
+        print("Running on Windows – connected to COM8")
+    except Exception as e:
+        print(f"Running on Windows – could not open COM8 ({e}). Setting PORT = None")
+        PORT = None
+
 elif platform.system() == "Linux":
-    # On Raspberry Pi / Ubuntu it usually shows up as /dev/ttyUSB0
-    PORT = "/dev/ttyUSB0"
-    print("Running on Linux")
+    try:
+        test = serial.Serial("/dev/ttyUSB0", BAUDRATE, timeout=1)
+        test.close()
+        PORT = "/dev/ttyUSB0"
+        print("Running on Linux – connected to /dev/ttyUSB0")
+    except Exception as e:
+        print(f"Running on Linux – could not open /dev/ttyUSB0 ({e}). Setting PORT = None")
+        PORT = None
+
 else:
     print("Unsupported OS. Please set the PORT variable manually.")
-    # Get user input for PORT
-    PORT = input("Enter the port for your USB2Dynamixel adapter (e.g. /dev/ttyUSB0 or COM3): ")
-    print(f"Using port: {PORT}")
+    PORT = None
 
-BAUDRATE = 1000000
+
 
 # Motor ID to name mapping (adjust if yours differ)
 motor_names = {

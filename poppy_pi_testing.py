@@ -34,12 +34,16 @@ def create_motor_test_gui():
     def update_positions():
         try:
             positions = pm.get_all_motor_positions()
-            for motor_name, pos in positions.items():
-                if motor_name in entry_vars:
-                    entry_vars[motor_name]["current"].config(text=f"{pos:.1f}")
+            if not positions:
+                print("Motors not found.")
+            else:
+                for motor_name, pos in positions.items():
+                    if motor_name in entry_vars:
+                        entry_vars[motor_name]["current"].config(text=f"{pos:.1f}")
         except Exception as e:
             print(f"Error fetching motor positions: {e}")
-        root.after(300, update_positions)
+        finally:
+            root.after(5000, update_positions)
 
     # Create rows
     for row, (motor_id, motor_name) in enumerate(pm.motor_names.items(), start=1):

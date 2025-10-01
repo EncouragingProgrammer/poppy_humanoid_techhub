@@ -1,4 +1,7 @@
 pypot
 poppy-humanoid
 poppy-torso
-pandas
+random
+threading
+time
+tkinter
